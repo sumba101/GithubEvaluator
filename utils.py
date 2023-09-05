@@ -1,6 +1,14 @@
-import subprocess
 import json
+import os
+import subprocess
 import xml.etree.ElementTree as ET
+
+from aider.repomap import RepoMap
+
+
+def fetch_readme(repo_name):
+    pass
+
 
 def get_python_dependencies():
     result = subprocess.run(['pip', 'freeze'], capture_output=True, text=True)
@@ -35,6 +43,32 @@ def get_java_dependencies():
         version = dependency.find('ns:version', namespace).text
         dependencies.append(f'{group_id}:{artifact_id}:{version}')
     return dependencies
+def get_file_count(repo):
+    contents = repo.get_contents("")
+    file_count = 0
+    for content in contents:
+        if content.type == "file":
+            file_count += 1
+    return file_count
+
+def fetch_map(repo_name):
+    other_fnames = []
+    exclude_prefixes = ('__', '.')  # exclusion prefixes
+    exclude_postfixes = ('.pyc', '.pyo', '.pyd','.jar','mvnw','.cmd')  # exclusion postfixes
+    for root, dirs, files in os.walk(repo_name,topdown=True):
+        files[:] = [f
+                       for f in files
+                       if not f.startswith(exclude_prefixes) and not f.endswith(exclude_postfixes)]
+        dirs[:] = [dirname
+                       for dirname in dirs
+                       if not dirname.startswith(exclude_prefixes)]
+        for file in files:
+            other_fnames.append(os.path.join(root, file))
+        # use files and dirs
+    rm = RepoMap(root=repo_name)
+
+    repo_map = rm.get_repo_map([], other_fnames)
+    return repo_map
 
 def get_dependencies(repository_path):
     # Clone the repository to a local directory

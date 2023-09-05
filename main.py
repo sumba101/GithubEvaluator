@@ -1,38 +1,14 @@
 import os
 import shutil
 
+from dotenv import load_dotenv
 from git import Repo
 from github import Github
-from dotenv import load_dotenv
-from aider.repomap import RepoMap
 
-
-def get_file_count(repo):
-    contents = repo.get_contents("")
-    file_count = 0
-    for content in contents:
-        if content.type == "file":
-            file_count += 1
-    return file_count
-
-def fetch_map(repo_name):
-    other_fnames = []
-    exclude_prefixes = ('__', '.')  # exclusion prefixes
-    exclude_postfixes = ('.pyc', '.pyo', '.pyd','.jar','mvnw','.cmd')  # exclusion postfixes
-    for root, dirs, files in os.walk(repo_name,topdown=True):
-        files[:] = [f
-                       for f in files
-                       if not f.startswith(exclude_prefixes) and not f.endswith(exclude_postfixes)]
-        dirs[:] = [dirname
-                       for dirname in dirs
-                       if not dirname.startswith(exclude_prefixes)]
-        for file in files:
-            other_fnames.append(os.path.join(root, file))
-        # use files and dirs
-    rm = RepoMap(root=repo_name)
-
-    repo_map = rm.get_repo_map([], other_fnames)
-    return repo_map
+from codequality import CodeQuality
+from complexity import Complexity
+from impact import Impact
+from unique import Unique
 
 if __name__ == '__main__':
     # username = sys.argv[1]
@@ -43,33 +19,41 @@ if __name__ == '__main__':
 
     username = "flightlesstux"
     user = g.get_user(username)
+    # First we find the impact and complexity score of all the repositories
+    # Then we select top 5 repositories with the highest impact and complexity score
+    # Then we find code quality and unique factors for each of the top 5 repositories
+
+    repository_score_to_repo = []
     for repository in user.get_repos():
         print(repository.name)
         # Prune out repositories that are forks
         if repository.fork or repository.visibility != "public":
             continue
-        stars = repository.stargazers_count
-        forks = repository.forks_count
-        watchers = repository.watchers_count
-        print(f'Stars: {stars}, Forks: {forks}, Watchers: {watchers}')
-        default_branch = repository.default_branch
-
-        # Get the repository's languages
-        languages = repository.get_languages() # It will give dict of language to bytes of code of that language
-
-        # Retrieve the number of programming languages used
-        num_languages = len(languages)
-
-        # Retrieve the number of commits
-        num_commits = repository.get_commits().totalCount
-
-        total_pull_requests = repository.get_pulls().totalCount
-
-        total_issues = repository.get_issues().totalCount
-
-        file_count = get_file_count(repository)
-        # clone the repository and delete afterwards
+        complexity = Complexity(repository)
+        complexity_score = complexity._complexity_score()
+        print(f"Complexity score: {complexity_score}")
+        impact = Impact(repository)
+        impact_score = impact._impact_score()
+        print(f"Impact score: {impact_score}")
+        repository_score_to_repo.append((complexity_score + impact_score, repository))
+    repository_score_to_repo.sort(reverse=True)
+    # iterate through the first 5 repositories
+    report_card = dict()
+    for i in range(5):
+        repository = repository_score_to_repo[i][1]
+        # clone the repository and delete afterward
         Repo.clone_from(repository.clone_url, repository.name)
-        repo_map = fetch_map(repository.name)
-        print(repo_map)
+        codequality = CodeQuality(repository.name)
+
+        description = repository.description
+        readme = repository.get_readme().decoded_content
+
+        unique = Unique(description, readme)
+        report_card[repository.name] = dict()
+        report_card[repository.name]["code_quality"] = codequality._evaluate_code_quality(repository)
+        report_card[repository.name]["unique_factors"] = unique._evaluate_code_unique(repository)
+
+        # delete the repository
         shutil.rmtree(repository.name)
+
+    print(report_card)
