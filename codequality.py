@@ -1,3 +1,5 @@
+from openai import response_gen
+from prompts import REPO_MAP_CODE_QUALITY_PROMPT, README_READABILITY_PROMPT
 from utils import fetch_map, fetch_readme
 
 
@@ -6,6 +8,7 @@ class CodeQuality:
         self.repomap = fetch_map(repo_name)
         self.readme = fetch_readme(repo_name)
 
-    def _evaluate_code_quality(self, repo):
-        pass # Prompt GPT4 with the repo map and readability prompt
-
+    def _evaluate_code_quality(self):
+        code_quality_report = response_gen(self.repomap, REPO_MAP_CODE_QUALITY_PROMPT, 0)
+        readme_readability_report = response_gen(self.readme, README_READABILITY_PROMPT, 0)
+        return code_quality_report, readme_readability_report

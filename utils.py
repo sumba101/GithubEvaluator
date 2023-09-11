@@ -70,7 +70,8 @@ def fetch_map(repo_name):
     repo_map = rm.get_repo_map([], other_fnames)
     return repo_map
 
-def get_dependencies(repository_path):
+
+def get_dependencies(repository_path, language):
     # Clone the repository to a local directory
     # ...
 
