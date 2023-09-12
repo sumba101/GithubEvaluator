@@ -1,4 +1,4 @@
-from openai import response_gen
+from openai_functions import response_gen
 from prompts import PROJECT_UNIQUENESS_PROMPT
 
 

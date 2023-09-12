@@ -1,4 +1,6 @@
 import openai
+
+
 class Model:
     name = None
     edit_format = None
@@ -14,8 +16,9 @@ class Model:
 
     @classmethod
     def create(cls, name):
-        from .openai import OpenAIModel
+        from .openai_class import OpenAIModel
         from .openrouter import OpenRouterModel
+
         if ("openrouter.ai" in openai.api_base):
             return OpenRouterModel(name)
         return OpenAIModel(name)

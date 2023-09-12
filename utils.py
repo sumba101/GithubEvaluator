@@ -6,10 +6,6 @@ import xml.etree.ElementTree as ET
 from aider.repomap import RepoMap
 
 
-def fetch_readme(repo_name):
-    pass
-
-
 def get_python_dependencies():
     result = subprocess.run(['pip', 'freeze'], capture_output=True, text=True)
     output = result.stdout

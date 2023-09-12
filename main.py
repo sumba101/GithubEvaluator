@@ -17,7 +17,7 @@ if __name__ == '__main__':
     access_token = os.environ.get('GITHUB_TOKEN')
     g = Github(access_token)
 
-    username = "flightlesstux"
+    username = "sumba101"
     user = g.get_user(username)
     # First we find the impact and complexity score of all the repositories
     # Then we select top 5 repositories with the highest impact and complexity score
@@ -35,25 +35,34 @@ if __name__ == '__main__':
         impact = Impact(repository)
         impact_score = impact._impact_score()
         print(f"Impact score: {impact_score}")
-        repository_score_to_repo.append((complexity_score + impact_score, repository))
+        repository_score_to_repo.append((complexity_score * 0.7 + impact_score * 0.3, repository))
     repository_score_to_repo.sort(reverse=True)
     # iterate through the first 5 repositories
     report_card = dict()
     for i in range(5):
         repository = repository_score_to_repo[i][1]
         # clone the repository and delete afterward
-        Repo.clone_from(repository.clone_url, repository.name)
-        codequality = CodeQuality(repository.name)
+        # Check if the repository does not exist
+        if not os.path.exists(repository.name):
+            Repo.clone_from(repository.clone_url, repository.name)
+        description = str(repository.description)
+        readme = str(repository.get_readme().decoded_content.strip())
 
-        description = repository.description
-        readme = repository.get_readme().decoded_content
-
+        codequality = CodeQuality(repository.name, readme)
         unique = Unique(description, readme)
         report_card[repository.name] = dict()
-        report_card[repository.name]["code_quality"] = codequality._evaluate_code_quality(repository)
-        report_card[repository.name]["unique_factors"] = unique._evaluate_code_unique(repository)
+        report_card[repository.name]["code_quality"] = codequality._evaluate_code_quality()
+        report_card[repository.name]["unique_factors"] = unique._evaluate_code_unique()
 
         # delete the repository
         shutil.rmtree(repository.name)
-
-    print(report_card)
+        # Create a folder ReportCard if it does not exist
+        if not os.path.exists("ReportCard"):
+            os.mkdir("ReportCard")
+        # Add a folder for the repository and in the repository folder add a file for code quality and unique factors contents
+        if not os.path.exists(f"ReportCard/{repository.name}"):
+            os.mkdir(f"ReportCard/{repository.name}")
+        with open(f"ReportCard/{repository.name}/code_quality.txt", "w") as f:
+            f.write(report_card[repository.name]["code_quality"])
+        with open(f"ReportCard/{repository.name}/unique_factors.txt", "w") as f:
+            f.write(report_card[repository.name]["unique_factors"])

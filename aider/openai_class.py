@@ -1,5 +1,6 @@
-import tiktoken
 import re
+
+import tiktoken
 
 from aider.models import Model
 
