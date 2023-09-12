@@ -1,5 +1,6 @@
 import os
 import shutil
+import sys
 
 from dotenv import load_dotenv
 from git import Repo
@@ -8,16 +9,16 @@ from github import Github
 from codequality import CodeQuality
 from complexity import Complexity
 from impact import Impact
+from thresholds import IMPACT_WEIGHTAGE, COMPLEXITY_WEIGHTAGE
 from unique import Unique
 
 if __name__ == '__main__':
-    # username = sys.argv[1]
+    username = sys.argv[1]
     # Create a GitHub instance using an access token
     load_dotenv()
     access_token = os.environ.get('GITHUB_TOKEN')
     g = Github(access_token)
 
-    username = "sumba101"
     user = g.get_user(username)
     # First we find the impact and complexity score of all the repositories
     # Then we select top 5 repositories with the highest impact and complexity score
@@ -35,11 +36,13 @@ if __name__ == '__main__':
         impact = Impact(repository)
         impact_score = impact._impact_score()
         print(f"Impact score: {impact_score}")
-        repository_score_to_repo.append((complexity_score * 0.7 + impact_score * 0.3, repository))
+        repository_score_to_repo.append(
+            (complexity_score * COMPLEXITY_WEIGHTAGE + impact_score * IMPACT_WEIGHTAGE, repository))
     repository_score_to_repo.sort(reverse=True, key=lambda x: x[0])
     # iterate through the first 5 repositories
+    print("Selected top 5 repositories for code quality and unique factors")
     report_card = dict()
-    for i in range(5):
+    for i in range(min(REPOSITORIES_TO_CONSIDER, len(repository_score_to_repo))):
         repository = repository_score_to_repo[i][1]
         # clone the repository and delete afterward
         # Check if the repository does not exist
@@ -51,15 +54,13 @@ if __name__ == '__main__':
                 description = str(repository.description)
         except:
             pass
-        if repository.name == "Bowling_alley_java":
-            continue
-        readme = "No Readme present."
+        readme = "No README present."
         try:
             if repository.get_readme() is not None:
                 readme = str(repository.get_readme().decoded_content.strip())
         except:
             pass  # readme file doesnt exist
-
+        print("Evaluating code quality and unique factors for repository: " + repository.name)
         codequality = CodeQuality(repository.name, readme)
         unique = Unique(description, readme)
         report_card[repository.name] = dict()
@@ -82,3 +83,5 @@ if __name__ == '__main__':
             f.write(report_card[repository.name]["unique_factors"])
         with open(f"ReportCard/{repository.name}/readme_readability.txt", "w") as f:
             f.write(report_card[repository.name]["readme_readability"])
+
+    print("Report card generated.")

@@ -1,3 +1,11 @@
+# Repositories to consider
+REPOSITORIES_TO_CONSIDER = 5
+
+# Complexity weightage
+COMPLEXITY_WEIGHTAGE = 0.7
+# Impact weightage
+IMPACT_WEIGHTAGE = 0.3
+
 # Complexity
 #   * Number of languages
 NUMBER_OF_LANGUAGES_UPPER = 10
