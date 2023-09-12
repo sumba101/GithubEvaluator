@@ -20,7 +20,7 @@ class Complexity:
             score += (min(self.byte_per_lang[lang],
                           AMOUNT_OF_BYTES_PER_LANGUAGE_UPPER) - AMOUNT_OF_BYTES_PER_LANGUAGE_LOWER) / (
                                  AMOUNT_OF_BYTES_PER_LANGUAGE_UPPER - AMOUNT_OF_BYTES_PER_LANGUAGE_LOWER)
-        return score/len(self.byte_per_lang)
+        return score / len(self.byte_per_lang) if len(self.byte_per_lang) > 0 else 0
 
 
     def _num_commits_score(self):

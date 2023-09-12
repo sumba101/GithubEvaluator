@@ -36,7 +36,7 @@ if __name__ == '__main__':
         impact_score = impact._impact_score()
         print(f"Impact score: {impact_score}")
         repository_score_to_repo.append((complexity_score * 0.7 + impact_score * 0.3, repository))
-    repository_score_to_repo.sort(reverse=True)
+    repository_score_to_repo.sort(reverse=True, key=lambda x: x[0])
     # iterate through the first 5 repositories
     report_card = dict()
     for i in range(5):
@@ -45,17 +45,31 @@ if __name__ == '__main__':
         # Check if the repository does not exist
         if not os.path.exists(repository.name):
             Repo.clone_from(repository.clone_url, repository.name)
-        description = str(repository.description)
-        readme = str(repository.get_readme().decoded_content.strip())
+        description = "No Description Present."
+        try:
+            if repository.description is not None:
+                description = str(repository.description)
+        except:
+            pass
+        if repository.name == "Bowling_alley_java":
+            continue
+        readme = "No Readme present."
+        try:
+            if repository.get_readme() is not None:
+                readme = str(repository.get_readme().decoded_content.strip())
+        except:
+            pass  # readme file doesnt exist
 
         codequality = CodeQuality(repository.name, readme)
         unique = Unique(description, readme)
         report_card[repository.name] = dict()
-        report_card[repository.name]["code_quality"] = codequality._evaluate_code_quality()
+        (code_quality, resume_readability) = codequality._evaluate_code_quality()
+        report_card[repository.name]["code_quality"] = code_quality
+        report_card[repository.name]["readme_readability"] = resume_readability
         report_card[repository.name]["unique_factors"] = unique._evaluate_code_unique()
 
-        # delete the repository
-        shutil.rmtree(repository.name)
+        # delete the directory
+        shutil.rmtree(repository.name, ignore_errors=True)
         # Create a folder ReportCard if it does not exist
         if not os.path.exists("ReportCard"):
             os.mkdir("ReportCard")
@@ -66,3 +80,5 @@ if __name__ == '__main__':
             f.write(report_card[repository.name]["code_quality"])
         with open(f"ReportCard/{repository.name}/unique_factors.txt", "w") as f:
             f.write(report_card[repository.name]["unique_factors"])
+        with open(f"ReportCard/{repository.name}/readme_readability.txt", "w") as f:
+            f.write(report_card[repository.name]["readme_readability"])
