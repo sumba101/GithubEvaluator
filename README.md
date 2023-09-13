@@ -1,5 +1,7 @@
 # GithubEvaluator
-Given a github link to a github user, evaluate all the repos present and select the most complex ones with adequate GPT4 explanation for choice
+
+Given a github username, evaluate all the repositories present and select the most complex ones with adequate GPT4
+reports
 
 # Metrics to cover
 Given a repository, we want to evaluate Complexity, Code Quality, Useful/Impactful-ness, Uniqueness/Toughness a repository is 
@@ -8,14 +10,16 @@ The following are possible metrics:
 * Complexity:
   * Number of languages
   * Amount of bytes per language
-  * Number of dependencies
+  * Number of dependencies*
   * Number of files
   * Number of commits
   The above metrics can be made into numeric scores each by making use of defined lower and upper thresholds for each metric. The final score can be a weighted sum of all these scores.
 * Code Quality:
-  * Repository Map
+  * Code Quality from Repository Map
   * Readability of ReadMe
-  These two can be arrived upon by using GPT4 to generate a score for each of these. 
+    Repository Map can be used to create a comprehensive GPT4 report covering naming convention, structure, modularity
+    and understandability.
+    Readability of ReadMe can be evaluated using GPT4 to generate a report on the ReadMe.
 * Useful/Impactful-ness:
   * Number of stars
   * Number of forks
@@ -24,11 +28,13 @@ The following are possible metrics:
   * Number of issues
   Like with complexity, we shall set thresholds for each of these and arrive at a score for each of these.
 * Uniqueness/Toughness:
-  * ReadMe + Description 
-  This is a subjective metric and can be arrived at by using GPT4 to generate a text evaluation for each metric. 
+  * ReadMe + Description
+    This is a subjective metric and can be arrived at by using GPT4 to generate a report using README and Description to
+    judge difficulty and uniqueness of the implementation .
 
 The goal would be to generate the Uniqueness/Toughness and Code Quality evaluations with GPT4 for the top 5 good repositories ranked using the other metrics.
 
+NOTE *: Number of dependencies function is currently commented out, must test a bit more to ensure generalisability.
 # How to run
 * Clone the repo
 * Install the requirements using `pip install -r requirements.txt`
@@ -60,7 +66,7 @@ contain the following for each repository:
 # Customization
 
 The prompts used for generating the reports can be found in the file `prompts.py`. The prompts can be modified to
-generate different reports.
+generate different reports. Highly recommend playing with the prompt to get the best results.
 
 The variables used for governing the thresholds for each metric can be found in the file `constants.py`. The variables
 can be modified to govern the number of repositories selected, the weightage given to impact vs complexity and
