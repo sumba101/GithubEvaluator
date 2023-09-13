@@ -1,6 +1,9 @@
 # Repositories to consider
 REPOSITORIES_TO_CONSIDER = 5
 
+# OpenAI
+OPENAI_TOKEN_LIMIT = 3042
+
 # Complexity weightage
 COMPLEXITY_WEIGHTAGE = 0.7
 # Impact weightage

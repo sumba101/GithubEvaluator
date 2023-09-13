@@ -9,7 +9,7 @@ from github import Github
 from codequality import CodeQuality
 from complexity import Complexity
 from impact import Impact
-from thresholds import IMPACT_WEIGHTAGE, COMPLEXITY_WEIGHTAGE
+from thresholds import IMPACT_WEIGHTAGE, COMPLEXITY_WEIGHTAGE, REPOSITORIES_TO_CONSIDER
 from unique import Unique
 
 if __name__ == '__main__':

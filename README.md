@@ -66,6 +66,8 @@ The variables used for governing the thresholds for each metric can be found in 
 can be modified to govern the number of repositories selected, the weightage given to impact vs complexity and
 upper-lower bounds used for generating the scores.
 
+The token limit required to not hit maximum content length error can be found in threshold.py.
+
 # To Note
 
 The script will only consider code repositories that are authored by the given github user. Contributions made to other
@@ -77,5 +79,6 @@ This can be explored and implemented in the future.
 
 Credits to the aider module and the repomap function used goes
 to [paul-gauthier](https://github.com/paul-gauthier/aider)
+
 Checkout his explanation on how to improve GPT4 visibility of code repository using
 CTags [here](https://aider.chat/docs/ctags.html)
