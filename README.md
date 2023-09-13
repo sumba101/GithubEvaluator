@@ -88,3 +88,12 @@ to [paul-gauthier](https://github.com/paul-gauthier/aider)
 
 Checkout his explanation on how to improve GPT4 visibility of code repository using
 CTags [here](https://aider.chat/docs/ctags.html)
+
+# Improvements
+
+Highly welcome pull requests and issues to improve the script. Some of the improvements that can be made are:
+
+* Improve the prompts used to generate the reports
+* Improve the thresholds for the metrics used to evaluate the repositories
+* Explore and implement contributions made to other repositories
+* Explore and implement other metrics to evaluate repositories
